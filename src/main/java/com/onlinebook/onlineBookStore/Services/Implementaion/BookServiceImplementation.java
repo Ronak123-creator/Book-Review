@@ -43,6 +43,10 @@ public class BookServiceImplementation implements BookService {
                     "Book name already exist " + dto.getTitle(), HttpStatus.CONFLICT.value()
             );
         }
+        if(dto.getPrice()<1){
+            throw new CustomExceptionHandel("Book price must be atleast 1.",
+                    HttpStatus.CONFLICT.value());
+        }
 
         Book book = BookMapper.toEntity(dto);
         Book saveBook = bookRepository.save(book);
@@ -81,17 +85,6 @@ public class BookServiceImplementation implements BookService {
         return BookMapper.toDto(book);
     }
 
-//    @Override
-//    public List<BookDTO> getBooksByCategory(String category){
-//        List<Book> book = bookRepository.findBookByCategory(category);
-//        if(book.isEmpty()){
-//            throw new CustomExceptionHandel("Book Not Found for Category: " + category);
-//            }
-//        return book.stream()
-//                .map(BookMapper::toDto)
-//                .collect(Collectors.toList());
-//
-//    }
 
     @Override
     public List<BookDTO> searchBook(String category, String title, String author){
@@ -115,10 +108,12 @@ public class BookServiceImplementation implements BookService {
         } else if (hasAuthor) {
             book = bookRepository.findByAuthorIgnoreCaseContaining(author);
         }else {
-            throw new CustomExceptionHandel("Provided search criteria: Category, Title or Author ", HttpStatus.NOT_FOUND.value());
+            throw new CustomExceptionHandel("Provided search criteria: Category, Title or Author ",
+                    HttpStatus.NOT_FOUND.value());
         }
         if(book.isEmpty()){
-            throw  new CustomExceptionHandel("No books matching found", HttpStatus.BAD_REQUEST.value());
+            throw  new CustomExceptionHandel("No books matching found",
+                    HttpStatus.BAD_REQUEST.value());
         }
 
         return book.stream()
