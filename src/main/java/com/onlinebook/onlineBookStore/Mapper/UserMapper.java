@@ -15,6 +15,7 @@ public class UserMapper {
         userInfo.setPassword(dto.getPassword());
         userInfo.setRole(Role.ROLE_USER);
         userInfo.setPhoneNumber(dto.getPhoneNumber());
+        userInfo.setEnabled(false);
 
         return userInfo;
     }

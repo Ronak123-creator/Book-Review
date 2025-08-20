@@ -9,5 +9,6 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Integer> {
     Optional<UserInfo> findByEmail(String email);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
+    Optional<UserInfo> findByVerificationToken(String token);
 
 }

@@ -44,7 +44,7 @@ public class BookServiceImplementation implements BookService {
             );
         }
         if(dto.getPrice()<1){
-            throw new CustomExceptionHandel("Book price must be atleast 1.",
+            throw new CustomExceptionHandel("Book price must be at least 1.",
                     HttpStatus.CONFLICT.value());
         }
 

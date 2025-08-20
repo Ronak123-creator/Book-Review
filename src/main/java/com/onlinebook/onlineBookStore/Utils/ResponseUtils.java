@@ -1,4 +1,4 @@
-package com.onlinebook.onlineBookStore.Controller;
+package com.onlinebook.onlineBookStore.Utils;
 
 
 import com.onlinebook.onlineBookStore.DTO.ApiResponse;
