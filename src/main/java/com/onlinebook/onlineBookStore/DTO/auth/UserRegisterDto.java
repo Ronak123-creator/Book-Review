@@ -1,7 +1,8 @@
 package com.onlinebook.onlineBookStore.DTO.auth;
 
-import com.onlinebook.onlineBookStore.Enum.Role;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,13 +10,16 @@ import lombok.Setter;
 @Setter
 public class UserRegisterDto {
 
+    @NotBlank(message = "Name is required")
     private String name;
 
+    @NotBlank(message = "Email is required")
     private String email;
 
-    private String password;
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
 
-    private Role role;
+    private String password;
 
     @Pattern(
             regexp = "^[0-9]{10}$",

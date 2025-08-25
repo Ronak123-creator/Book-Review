@@ -15,4 +15,5 @@ public class CreateBookDTO {
     private String category;
     @NotBlank(message = "Image Url is required..")
     private String imageUrl;
+
 }

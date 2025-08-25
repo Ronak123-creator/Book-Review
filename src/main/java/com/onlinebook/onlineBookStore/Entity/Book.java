@@ -46,4 +46,7 @@ public class Book {
     @Column(nullable = false)
     private Instant updatedDate;
 
+    @Column(nullable = false)
+    private Integer quantity = 0;
+
 }

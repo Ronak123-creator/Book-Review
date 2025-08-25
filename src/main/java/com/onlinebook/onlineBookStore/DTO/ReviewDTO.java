@@ -23,7 +23,6 @@ public class ReviewDTO {
     @NotNull(message = "Book ID is required")
     private Integer bookId;
 
-    @NotNull(message = "Review is required")
     private String reviewerName;
 
     @Min(value = 1, message = "Rating must be between 1 and 5")

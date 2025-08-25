@@ -55,4 +55,10 @@ public class UserInfoController {
 
     }
 
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyUser(@RequestParam("token") String token){
+        userInfoService.verifyUser(token);
+        return responseUtils.ok("Email verified Successfully", null);
+    }
+
 }

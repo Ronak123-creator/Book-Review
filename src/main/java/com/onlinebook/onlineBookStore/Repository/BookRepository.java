@@ -9,6 +9,7 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Integer> {
 
      boolean existsByTitleIgnoreCaseContaining(String title);
+     boolean existsByAuthorIgnoreCaseContaining(String author);
      List<Book> findByCategoryIgnoreCaseContaining(String category);
      List<Book> findByTitleIgnoreCaseContaining(String title);
      List<Book> findByAuthorIgnoreCaseContaining(String author);

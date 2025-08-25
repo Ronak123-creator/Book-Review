@@ -40,11 +40,8 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth-> auth.requestMatchers(
-                        "/api/auth/login",
-                                "/api/auth/register",
-                                "/api/auth/index",
+                                 "/api/auth/**",   // <-- group all auth endpoints
                                 "/book/**",
-                                "/reviews",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

@@ -20,11 +20,15 @@ public class Review {
     @JoinColumn(name="book_id", nullable = false)
     private Book book;
 
-    @Column(nullable = false)
-    private String reviewerName;
+//    @Column(nullable = false)
+//    private String reviewerName;
 
     @Column(nullable = false)
     private Integer rating;
 
     private  String comment;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserInfo user;
 }

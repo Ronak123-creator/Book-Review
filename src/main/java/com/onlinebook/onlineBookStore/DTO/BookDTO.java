@@ -1,6 +1,7 @@
 package com.onlinebook.onlineBookStore.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class BookDTO {
     @NotBlank(message = "Category is required")
     private String category;
 
+    private Integer quantity;
 
     @Pattern(regexp= "^(http|https)://.*$", message = "Cover image must be a valid URL")
     private String coverImage;

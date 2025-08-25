@@ -42,7 +42,7 @@ public class JwtService {
         claims.put("email", email);
         claims.put("roles", role.name());
         claims.put("id",userInfo.getId());
-        claims.put("phoneNumebr",userInfo.getPhoneNumber());
+        claims.put("phoneNumber",userInfo.getPhoneNumber());
 
         return Jwts.builder()
                 .setClaims(claims)

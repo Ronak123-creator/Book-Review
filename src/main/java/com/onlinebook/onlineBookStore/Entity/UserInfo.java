@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "user_info")
 @Getter
@@ -44,5 +46,9 @@ public class UserInfo {
 
     @Column(unique = true)
     private  String verificationToken;
+
+    @OneToMany(mappedBy = "user")
+    private List<Review> reviews;
+
 
 }

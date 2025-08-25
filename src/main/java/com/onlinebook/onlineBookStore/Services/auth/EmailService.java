@@ -1,10 +1,8 @@
 package com.onlinebook.onlineBookStore.Services.auth;
 
 import com.onlinebook.onlineBookStore.Entity.UserInfo;
-import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +15,13 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendEmail(UserInfo userInfo, String subject, String message){
+    public void sendVerificationEmail(UserInfo userInfo){
+        String subject = "Verify Your Email";
+        String verficationUrl = "http://localhost:8081/api/auth/verify?token=" +
+                userInfo.getVerificationToken();
+        String message = "Welcome " + userInfo.getName() + "\n\n"
+                + "Please click the link to verify your email: \n"
+                + verficationUrl +"\n\n Thank You!!";
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(userInfo.getEmail());
@@ -25,6 +29,5 @@ public class EmailService {
         mailMessage.setText(message);
 
         mailSender.send(mailMessage);
-
     }
 }

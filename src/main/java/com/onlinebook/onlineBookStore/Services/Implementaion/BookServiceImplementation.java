@@ -1,6 +1,7 @@
 package com.onlinebook.onlineBookStore.Services.Implementaion;
 
 import com.onlinebook.onlineBookStore.DTO.BookDTO;
+import com.onlinebook.onlineBookStore.DTO.InventoryUpdateDto;
 import com.onlinebook.onlineBookStore.Entity.Book;
 import com.onlinebook.onlineBookStore.ExceptionHandeling.CustomExceptionHandel;
 import com.onlinebook.onlineBookStore.Mapper.BookMapper;
@@ -38,9 +39,10 @@ public class BookServiceImplementation implements BookService {
 //        book.setCategory(dto.getCategory());
 //        book.setCoverImage(dto.getCoverImage());
 
-        if(bookRepository.existsByTitleIgnoreCaseContaining(dto.getTitle())){
+        if(bookRepository.existsByTitleIgnoreCaseContaining(dto.getTitle()) && bookRepository.existsByAuthorIgnoreCaseContaining(dto.getAuthor())){
             throw new CustomExceptionHandel(
-                    "Book name already exist " + dto.getTitle(), HttpStatus.CONFLICT.value()
+                    "Book name already exist " + dto.getTitle() + " of author" + dto.getAuthor()
+                    , HttpStatus.CONFLICT.value()
             );
         }
         if(dto.getPrice()<1){
@@ -59,6 +61,34 @@ public class BookServiceImplementation implements BookService {
               .orElseThrow(()-> new CustomExceptionHandel("Error " + id, HttpStatus.NOT_FOUND.value()));
       return BookMapper.toDto(book);
 
+    }
+
+    @Override
+    public List<BookDTO> getBookByCategory(String category) {
+      List<Book> books = bookRepository.findByCategoryIgnoreCaseContaining(category);
+
+      if (books.isEmpty()){
+          throw new CustomExceptionHandel("No book found for category : " + category,
+                  HttpStatus.NOT_FOUND.value());
+      }
+      return books.stream()
+              .map(BookMapper::toDto)
+              .collect(Collectors.toList());
+    }
+
+    @Override
+    public BookDTO updateQuantity(InventoryUpdateDto dto) {
+        Book book = bookRepository.findById(dto.getBookId())
+                .orElseThrow(()->new CustomExceptionHandel("Book not Found",
+                        HttpStatus.NOT_FOUND.value()));
+
+        int updateQuantity = book.getQuantity() + dto.getQuantityChange();
+
+        if(updateQuantity< 0){
+            throw  new CustomExceptionHandel("Insufficient Stock",HttpStatus.BAD_REQUEST.value());
+        }
+        book.setQuantity(updateQuantity);
+        return BookMapper.toDto(bookRepository.save(book));
     }
 
     @Override

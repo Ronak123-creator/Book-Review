@@ -12,6 +12,7 @@ public class BookMapper {
                 book.getPrice(),
                 book.getPublishedDate(),
                 book.getCategory(),
+                book.getQuantity(),
                 book.getCoverImage(),
                 book.getCreatedDate(),
                 book.getUpdatedDate()
@@ -23,6 +24,7 @@ public class BookMapper {
         book.setAuthor(dto.getAuthor());
         book.setPrice(dto.getPrice());
         book.setCategory(dto.getCategory());
+        book.setQuantity(dto.getQuantity());
         book.setPublishedDate(dto.getPublicationDate());
         book.setCoverImage(dto.getCoverImage());
 

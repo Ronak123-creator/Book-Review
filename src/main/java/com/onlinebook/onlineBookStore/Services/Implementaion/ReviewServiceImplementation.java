@@ -3,13 +3,16 @@ package com.onlinebook.onlineBookStore.Services.Implementaion;
 import com.onlinebook.onlineBookStore.DTO.ReviewDTO;
 import com.onlinebook.onlineBookStore.Entity.Book;
 import com.onlinebook.onlineBookStore.Entity.Review;
+import com.onlinebook.onlineBookStore.Entity.UserInfo;
 import com.onlinebook.onlineBookStore.ExceptionHandeling.CustomExceptionHandel;
 import com.onlinebook.onlineBookStore.Mapper.ReviewMapper;
 import com.onlinebook.onlineBookStore.Repository.BookRepository;
 import com.onlinebook.onlineBookStore.Repository.ReviewRepository;
+import com.onlinebook.onlineBookStore.Repository.UserInfoRepository;
 import com.onlinebook.onlineBookStore.Services.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class ReviewServiceImplementation implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
+    private final UserInfoRepository userInfoRepository;
     private final BookServiceImplementation bookServiceImplementation;
 
     @Override
@@ -27,7 +31,13 @@ public class ReviewServiceImplementation implements ReviewService {
         Book book = bookRepository.findById(reviewDTO.getBookId())
                 .orElseThrow(()-> new CustomExceptionHandel(
                         "Book Not Found with Id : " +reviewDTO.getBookId(), HttpStatus.NOT_FOUND.value()));
-        Review review = ReviewMapper.toEntity(reviewDTO,book);
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        UserInfo userInfo = userInfoRepository.findByEmail(email)
+                .orElseThrow(()-> new CustomExceptionHandel("User Not Found",HttpStatus.NOT_FOUND.value()));
+
+        Review review = ReviewMapper.toEntity(reviewDTO,book, userInfo);
 
         Review saveReview = reviewRepository.save(review);
         return ReviewMapper.toDto(saveReview);
@@ -62,7 +72,8 @@ public class ReviewServiceImplementation implements ReviewService {
         Book book = bookRepository.findById(reviewDTO.getBookId())
                 .orElseThrow(()->new CustomExceptionHandel("Book not found with id : " + reviewDTO.getBookId(), HttpStatus.NOT_FOUND.value()));
 
-        Review updatedReview = ReviewMapper.toEntity(reviewDTO,book);
+        UserInfo userInfo = new UserInfo();
+        Review updatedReview = ReviewMapper.toEntity(reviewDTO,book,userInfo);
         updatedReview.setId(id);
 
         Review savedReview = reviewRepository.save(updatedReview);

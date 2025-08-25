@@ -44,9 +44,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
-
-            filterChain.doFilter(request, response);
         }
+        filterChain.doFilter(request, response);
     }
 
     @Override
@@ -63,9 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 || path.startsWith("/webjars")
                 || path.equals("/swagger-ui.html")
                 || path.equals("/api/auth/index")
-                || path.equals("/book")
-                || path.equals("/reviews");
-//                || path.equals("/register")
-//                || path.equals("/login");
+                || path.startsWith("/api/auth/") ;
+
     }
 }

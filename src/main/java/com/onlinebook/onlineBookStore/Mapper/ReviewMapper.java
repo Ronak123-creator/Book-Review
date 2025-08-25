@@ -1,11 +1,9 @@
 package com.onlinebook.onlineBookStore.Mapper;
 
-import com.onlinebook.onlineBookStore.DTO.BookDTO;
 import com.onlinebook.onlineBookStore.DTO.ReviewDTO;
 import com.onlinebook.onlineBookStore.Entity.Book;
 import com.onlinebook.onlineBookStore.Entity.Review;
-
-import java.util.List;
+import com.onlinebook.onlineBookStore.Entity.UserInfo;
 
 public class ReviewMapper {
 
@@ -15,7 +13,8 @@ public class ReviewMapper {
 
                 review.getId(),
                 review.getBook().getId(),
-                review.getReviewerName(),
+//                review.getReviewerName(),
+                review.getUser().getName(),
                 review.getRating(),
                 review.getComment(),
                 null
@@ -23,12 +22,13 @@ public class ReviewMapper {
 
     }
 
-    public static Review toEntity(ReviewDTO reviewDTO, Book book){
+    public static Review toEntity(ReviewDTO reviewDTO, Book book, UserInfo user){
 
         Review review = new Review();
         review.setId(reviewDTO.getId());
         review.setBook(book);
-        review.setReviewerName(reviewDTO.getReviewerName());
+        review.setUser(user);
+//        review.setReviewerName(reviewDTO.getReviewerName());
         review.setRating(reviewDTO.getRating());
         review.setComment(reviewDTO.getComment());
         return review;

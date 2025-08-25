@@ -7,6 +7,7 @@ import com.onlinebook.onlineBookStore.Utils.ResponseUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ReviewController extends ResponseUtils {
     private final ReviewServiceImplementation reviewServiceImplementation;
 
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewDTO>> createReview(@Valid @RequestBody ReviewDTO reviewDTO) {
         ReviewDTO createReviews = reviewServiceImplementation.createReview(reviewDTO);
