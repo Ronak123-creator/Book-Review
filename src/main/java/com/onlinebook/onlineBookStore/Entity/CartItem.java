@@ -22,7 +22,7 @@ public class CartItem {
 
     private Integer quantity;
 
-    private Double itemTotal;
+    private Double itemTotal = 0.0;
 
 
 }

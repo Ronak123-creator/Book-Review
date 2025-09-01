@@ -6,10 +6,10 @@ import com.onlinebook.onlineBookStore.DTO.cart.CartItemResponseDto;
 import com.onlinebook.onlineBookStore.DTO.cart.UpdateCartItemDto;
 import com.onlinebook.onlineBookStore.Services.Implementaion.CartServiceImplementation;
 import com.onlinebook.onlineBookStore.Utils.ResponseUtils;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +21,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<CartItemResponseDto>> getCart(){
+        System.out.println("Get All Cart");
         CartItemResponseDto cartItemResponseDto = cartServiceImplementation.getCart();
         return responseUtils.ok(cartItemResponseDto);
     }
@@ -29,6 +30,7 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartItemResponseDto>> addToCart(
             @Valid @RequestBody AddToCart dto
             ){
+        System.out.println("Received DTO: " + dto);
         CartItemResponseDto cartItemResponseDto = cartServiceImplementation.addToCart(dto);
         return responseUtils.ok(cartItemResponseDto);
     }

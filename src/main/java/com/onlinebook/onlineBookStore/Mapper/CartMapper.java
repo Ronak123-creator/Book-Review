@@ -36,32 +36,35 @@ public class CartMapper {
                 cartItem.getBook().getPrice(),
                 cartItem.getBook().getCoverImage(),
                 cartItem.getQuantity(),
-                cartItem.getBook().getPrice() * cartItem.getItemTotal()
+                cartItem.getBook().getPrice() * cartItem.getQuantity()
         );
 
     }
 
     public static CartItemResponseDto toDto(Cart cart){
-        List<CartItemDto> item = cart.getItems().stream()
+        List<CartItemDto> itemDtos = cart.getItems().stream()
                 .map(CartMapper::toCartItemDto)
                 .collect(Collectors.toList());
+
+        Double totalAmount = (cart.getTotalPrice()!=null)
+                ? cart.getTotalPrice()
+                : itemDtos.stream().mapToDouble(CartItemDto::getSubtotal).sum();
+
+        Integer totalItems = cart.getItems().stream()
+                .mapToInt(ci -> ci.getQuantity() != null ? ci.getQuantity() : 0)
+                .sum();
 
         return new CartItemResponseDto(
                 cart.getId(),
                 cart.getUser().getId(),
                 cart.getUser().getEmail(),
+                itemDtos,
+                totalAmount,
+                totalItems,
                 cart.getCreatedAt(),
-                cart.getUpdatedAt(),
-                item,
-                cart.getItems().stream()
-                        .mapToInt(CartItem::getQuantity)
-                        .sum(),
-                cart.getItems().stream()
-                        .mapToDouble(items -> items.getBook().getPrice() * item.getQuantity())
-                        .sum()
+                cart.getUpdatedAt()
         );
 
     }
-
 
 }

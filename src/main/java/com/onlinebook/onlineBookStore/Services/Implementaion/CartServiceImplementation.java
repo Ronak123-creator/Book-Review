@@ -15,10 +15,10 @@ import com.onlinebook.onlineBookStore.Repository.CartRepository;
 import com.onlinebook.onlineBookStore.Repository.UserInfoRepository;
 import com.onlinebook.onlineBookStore.Services.CartService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -48,6 +48,40 @@ public class CartServiceImplementation implements CartService {
      return user.getCart();
     }
 
+    private void calculatePrice(Cart cart){
+        double total = 0.0;
+        for(CartItem i : cart.getItems()){
+            double unitPrice = i.getBook().getPrice();
+            int qun = i.getQuantity();
+            double price = unitPrice * qun;
+            i.setItemTotal(price);
+            total += price;
+
+        }
+        cart.setTotalPrice(total);
+    }
+
+    private void holdStock(Book book, int newQuantity){
+        if(newQuantity <= 0){
+            return;
+        }
+        int availableQuantity = book.getQuantity();
+        if(availableQuantity < newQuantity){
+            throw new CustomExceptionHandel("Insufficient Stock",
+                    HttpStatus.BAD_REQUEST.value());
+        }
+        book.setQuantity(availableQuantity - newQuantity);
+
+    }
+
+    private void releaseStock(Book book, int newQuantity){
+        if(newQuantity< 0){
+            return;
+        }
+        Integer availableQuantity = book.getQuantity();
+        book.setQuantity(availableQuantity + newQuantity);
+    }
+
     @Override
     public CartItemResponseDto getCart() {
         UserInfo user = getCurrentUser();
@@ -56,6 +90,7 @@ public class CartServiceImplementation implements CartService {
     }
 
     @Override
+    @Transactional
     public CartItemResponseDto addToCart(AddToCart dto) {
         UserInfo user = getCurrentUser();
         Cart cart = getOrCreateCart(user);
@@ -63,11 +98,8 @@ public class CartServiceImplementation implements CartService {
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(()->new CustomExceptionHandel("Book Not Found", HttpStatus.NOT_FOUND.value()));
 
-        if(book.getQuantity()< dto.getQuantity()){
-            throw  new CustomExceptionHandel("Insufficient Stock. Available: " +book.getQuantity(),
-                    HttpStatus.BAD_REQUEST.value());
+        holdStock(book, dto.getQuantity());
 
-        }
         //check in cart if already exists
         Optional<CartItem> existing = cartItemRepository.findByCartAndBook(cart,book);
 
@@ -80,16 +112,19 @@ public class CartServiceImplementation implements CartService {
                         HttpStatus.BAD_REQUEST.value());
             }
             cartItem.setQuantity(newQuantity);
-            cartItemRepository.save(cartItem);
         }else {
             CartItem cartItem = CartMapper.toEntity(dto,book,cart);
-            cartItemRepository.save(cartItem);
+
+            cart.getItems().add(cartItem);
         }
-        Cart existingCart = cartRepository.findById(cart.getId())
-                .orElse(cart);
-        return CartMapper.toDto(existingCart);
+        calculatePrice(cart);
+
+        cartRepository.save(cart);
+        return CartMapper.toDto(cart);
+
     }
 
+    @Transactional
     @Override
     public CartItemResponseDto updateCartItem(UpdateCartItemDto dto) {
         UserInfo user = getCurrentUser();
@@ -102,17 +137,26 @@ public class CartServiceImplementation implements CartService {
                 .orElseThrow(() -> new CustomExceptionHandel("Item not found in cart",
                         HttpStatus.NOT_FOUND.value()));
 
-        if(book.getQuantity()< dto.getQuantity()){
-            throw  new CustomExceptionHandel("Insufficient Stock.", HttpStatus.BAD_REQUEST.value());
+        int oldQty = book.getQuantity();
+        int newQty = dto.getQuantity();
+
+        int result = newQty - oldQty;
+
+        if(result > 0){
+            holdStock(book,result);
+        }else if(result < 0) {
+            releaseStock(book,-result);
         }
-        cartItem.setQuantity(dto.getQuantity());
-        cartItemRepository.save(cartItem);
-        Cart existingCart = cartRepository.findById(cart.getId())
-                .orElse(cart);
-        return CartMapper.toDto(existingCart);
+
+        cartItem.setQuantity(newQty);
+
+        calculatePrice(cart);
+        cartRepository.save(cart);
+        return CartMapper.toDto(cart);
     }
 
     @Override
+    @Transactional
     public CartItemResponseDto removeFromCart(Integer bookId) {
         UserInfo user =getCurrentUser();
         Cart cart = getOrCreateCart(user);
@@ -121,28 +165,44 @@ public class CartServiceImplementation implements CartService {
                 .orElseThrow(() -> new CustomExceptionHandel("Book not found",
                         HttpStatus.NOT_FOUND.value()));
 
-        cartItemRepository.findByCartAndBook(cart, book)
-                .ifPresentOrElse(
-                        cartItemRepository::delete,
-                        ()-> {
-                            throw new CustomExceptionHandel("Item Not FOund in cart",
-                                    HttpStatus.NOT_FOUND.value());
-                        }
-                );
-        Cart existingCart = cartRepository.findById(cart.getId())
-                .orElse(cart);
-        return CartMapper.toDto(existingCart);
+//        cartItemRepository.findByCartAndBook(cart, book)
+//                .ifPresentOrElse(
+//                        cartItemRepository::delete,
+//                        ()-> {
+//                            throw new CustomExceptionHandel("Item Not FOund in cart",
+//                                    HttpStatus.NOT_FOUND.value());
+//                        }
+//                );
+//        Cart existingCart = cartRepository.findById(cart.getId())
+//                .orElse(cart);
+//        return CartMapper.toDto(existingCart);
+        CartItem item = cartItemRepository.findByCartAndBook(cart,book)
+                .orElseThrow(()-> new CustomExceptionHandel("Item not found ",
+                        HttpStatus.BAD_REQUEST.value()));
+
+        int qty = item.getQuantity();
+        releaseStock(book,qty);
+
+        cart.getItems().remove(item);
+        calculatePrice(cart);
+
+        return CartMapper.toDto(cart);
 
     }
 
     @Override
+    @Transactional
     public void clearCart() {
         UserInfo user = getCurrentUser();
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(()->new CustomExceptionHandel("Cart Not Found ",
                         HttpStatus.NOT_FOUND.value()));
+
+        for (CartItem i : cart.getItems()){
+            int qty = i.getQuantity();
+            releaseStock(i.getBook(),qty);
+        }
         cart.getItems().clear();
         cartRepository.save(cart);
-
     }
 }
